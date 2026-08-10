@@ -1,0 +1,13 @@
+server:
+  port: 8084
+  name: call
+  log_level: info
+
+webrtc:
+  stun_url: stun:stun.l.google.com:19302
+  turn_url: ""
+  turn_username: ""
+  turn_credential: ""
+
+database:
+  url: postgres://haze:haze@postgres:5432/haze?sslmode=disable

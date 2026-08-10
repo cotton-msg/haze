@@ -1,0 +1,9 @@
+server:
+  port: 8087
+  name: search
+  log_level: info
+  internal_token: ""
+
+meilisearch:
+  url: http://meilisearch:7700
+  api_key: ""

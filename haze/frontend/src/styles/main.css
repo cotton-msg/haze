@@ -1,0 +1,86 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #7c6cf0;
+  --color-primary-soft: rgba(124, 108, 240, 0.16);
+  --color-accent: #2dd4bf;
+  --color-dark: #0c0e14;
+  --color-surface: #10131b;
+  --color-glass: rgba(255, 255, 255, 0.055);
+  --color-glass-strong: rgba(255, 255, 255, 0.085);
+  --color-glass-border: rgba(255, 255, 255, 0.09);
+  --color-text: #e8eaf0;
+  --color-text-muted: rgba(255, 255, 255, 0.45);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body, #app { height: 100%; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  background:
+    radial-gradient(900px 600px at 12% -8%, rgba(124, 108, 240, 0.09), transparent 60%),
+    radial-gradient(800px 600px at 108% 112%, rgba(45, 212, 191, 0.05), transparent 55%),
+    #0c0e14;
+  color: var(--color-text);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+#app { display: flex; }
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
+
+::selection { background: rgba(124, 108, 240, 0.35); }
+
+/* ── Matte glass core ─────────────────────────────── */
+
+.glass {
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.035));
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  backdrop-filter: blur(22px) saturate(140%);
+  -webkit-backdrop-filter: blur(22px) saturate(140%);
+  box-shadow: 0 12px 40px -12px rgba(0, 0, 0, 0.55);
+}
+
+.glass-soft {
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(14px) saturate(130%);
+  -webkit-backdrop-filter: blur(14px) saturate(130%);
+}
+
+.glass-hover {
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+.glass-hover:hover {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+/* ── Animations ───────────────────────────────────── */
+
+@keyframes haze-fade-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes haze-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes haze-pop {
+  0%   { opacity: 0; transform: scale(0.96); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.haze-fade-up { animation: haze-fade-up 0.35s cubic-bezier(0.2, 0.7, 0.3, 1) both; }
+.haze-fade-in { animation: haze-fade-in 0.25s ease both; }
+.haze-pop { animation: haze-pop 0.22s cubic-bezier(0.2, 0.7, 0.3, 1) both; }

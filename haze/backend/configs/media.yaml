@@ -1,0 +1,21 @@
+server:
+  port: 8083
+  name: media
+  log_level: info
+
+storage:
+  type: local # local | minio
+  local_dir: /data/media
+  local_url: http://localhost:8083/media
+
+minio:
+  endpoint: minio:9000
+  access_key: minioadmin
+  secret_key: minioadmin
+  bucket: haze-media
+  use_ssl: false
+  public_url: ""
+
+limits:
+  max_file_size: 52428800
+  max_file_size_premium: 524288000

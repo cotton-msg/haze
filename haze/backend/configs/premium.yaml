@@ -1,0 +1,13 @@
+server:
+  port: 8088
+  name: premium
+  log_level: info
+
+database:
+  url: postgres://haze:haze@postgres:5432/haze?sslmode=disable
+
+stripe:
+  secret_key: ""
+  webhook_secret: ""
+  success_url: "https://haze.app/premium/success"
+  cancel_url: "https://haze.app/premium/cancel"

@@ -1,0 +1,13 @@
+FROM golang:1.25-alpine AS builder
+WORKDIR /app
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux go build -o /premium ./cmd/premium
+
+FROM alpine:3.19
+RUN apk --no-cache add ca-certificates
+COPY --from=builder /premium /premium
+COPY configs/premium.yaml /configs/premium.yaml
+EXPOSE 8088
+CMD ["/premium"]

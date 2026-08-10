@@ -1,0 +1,44 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: "haze-gateway"
+    static_configs:
+      - targets: ["gateway:8080"]
+
+  - job_name: "haze-auth"
+    static_configs:
+      - targets: ["auth:8081"]
+
+  - job_name: "haze-chat"
+    static_configs:
+      - targets: ["chat:8082"]
+
+  - job_name: "haze-media"
+    static_configs:
+      - targets: ["media:8083"]
+
+  - job_name: "haze-call"
+    static_configs:
+      - targets: ["call:8084"]
+
+  - job_name: "haze-bot"
+    static_configs:
+      - targets: ["bot:8085"]
+
+  - job_name: "haze-notification"
+    static_configs:
+      - targets: ["notification:8086"]
+
+  - job_name: "haze-premium"
+    static_configs:
+      - targets: ["premium:8088"]
+
+  - job_name: "postgres"
+    static_configs:
+      - targets: ["postgres:9187"]
+
+  - job_name: "redis"
+    static_configs:
+      - targets: ["redis:9121"]

@@ -1,0 +1,26 @@
+server:
+  port: 8081
+  name: auth
+  log_level: info
+
+database:
+  url: postgres://haze:haze@postgres:5432/haze?sslmode=disable
+  max_connections: 20
+
+redis:
+  address: redis:6379
+  password: ""
+  db: 0
+
+ssa:
+  client_id: ""
+  client_secret: ""
+  authorize_url: ""
+  token_url: ""
+  redirect_url: "http://localhost:8080/auth/ssa/callback"
+
+jwt:
+  access_secret: ""
+  refresh_secret: ""
+  access_ttl: 15m
+  refresh_ttl: 720h

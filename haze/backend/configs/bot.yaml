@@ -1,0 +1,7 @@
+server:
+  port: 8085
+  name: bot
+  log_level: info
+
+database:
+  url: postgres://haze:haze@postgres:5432/haze?sslmode=disable

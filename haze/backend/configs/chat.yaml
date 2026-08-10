@@ -1,0 +1,25 @@
+server:
+  port: 8082
+  name: chat
+  log_level: info
+
+database:
+  url: postgres://haze:haze@postgres:5432/haze?sslmode=disable
+  max_connections: 20
+
+redis:
+  address: redis:6379
+  password: ""
+  db: 1
+
+queue:
+  stream: haze:notif
+  unfurl_stream: haze:unfurl
+
+services:
+  search: http://search:8087
+  notification: http://notification:8086
+  search_token: ""
+
+nats:
+  url: nats://nats:4222

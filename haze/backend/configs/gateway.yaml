@@ -1,0 +1,40 @@
+server:
+  port: 8080
+  name: gateway
+  log_level: info
+
+services:
+  auth: http://auth:8081
+  chat: http://chat:8082
+  media: http://media:8083
+  call: http://call:8084
+  bot: http://bot:8085
+  notification: http://notification:8086
+  search: http://search:8087
+  premium: http://premium:8088
+
+rate_limit:
+  default: 100
+  premium: 1000
+  window: 1m
+
+redis:
+  address: redis:6379
+  password: ""
+  db: 0
+
+cors:
+  allowed_origins:
+    - "http://localhost:3000"
+    - "https://haze.app"
+    - "https://app.haze.app"
+  allowed_methods:
+    - GET
+    - POST
+    - PUT
+    - DELETE
+    - OPTIONS
+  allowed_headers:
+    - Content-Type
+    - Authorization
+    - X-Request-ID

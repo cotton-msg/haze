@@ -1,0 +1,193 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  backend-lint:
+    name: Backend Lint
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: haze/backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.25"
+          cache-dependency-path: haze/backend/go.sum
+      - run: go mod download
+      - name: gofmt check
+        run: |
+          if [ -n "$(gofmt -l .)" ]; then
+            echo "Files not formatted:"
+            gofmt -l .
+            exit 1
+          fi
+      - run: go vet ./...
+      - uses: golangci/golangci-lint-action@v6
+        with:
+          working-directory: haze/backend
+          version: latest
+
+  backend-test:
+    name: Backend Tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: haze/backend
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: haze
+          POSTGRES_PASSWORD: haze
+          POSTGRES_DB: haze
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U haze"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.25"
+          cache-dependency-path: haze/backend/go.sum
+      - run: go mod download
+      - run: go test ./... -v -count=1 -timeout 180s -coverprofile=cover.out
+      - run: go build ./...
+      - name: Upload coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-cover
+          path: haze/backend/cover.out
+
+  backend-migrations:
+    name: Database Migrations
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: haze
+          POSTGRES_PASSWORD: haze
+          POSTGRES_DB: haze
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U haze"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          for f in haze/backend/migrations/*.sql; do
+            echo "Running $f..."
+            PGPASSWORD=haze psql -h localhost -U haze -d haze -f "$f"
+          done
+
+  frontend:
+    name: Frontend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: haze/frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: haze/frontend/package-lock.json
+      - run: npm ci
+      - run: npx vue-tsc -b --noEmit
+      - run: npm run build
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: haze/frontend/dist
+
+  docker:
+    name: Docker Build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service:
+          - auth
+          - chat
+          - media
+          - call
+          - bot
+          - notification
+          - search
+          - premium
+          - gateway
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build
+          -f haze/backend/docker/Dockerfile.${{ matrix.service }}
+          -t haze/${{ matrix.service }}:latest
+          haze/backend/
+
+  desktop:
+    name: Desktop (Tauri)
+    strategy:
+      matrix:
+        platform: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.platform }}
+    defaults:
+      run:
+        working-directory: haze/desktop/src-tauri
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: haze/frontend/package-lock.json
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: haze/desktop/src-tauri
+      - name: Install Linux dependencies
+        if: matrix.platform == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf libxdo-dev
+      - run: npm ci
+        working-directory: haze/frontend
+      - run: cargo check
+      - run: cargo build --release
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ""
+
+  deploy-docs:
+    name: Deploy Docs
+    if: github.ref == 'refs/heads/main'
+    needs: [backend-test, frontend, docker]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy to production
+        run: |
+          echo "Deploy triggered"
+          # ssh deploy@server "./deploy.sh production"

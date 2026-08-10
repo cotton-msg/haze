@@ -1,0 +1,31 @@
+server:
+  port: 8086
+  name: notification
+  log_level: info
+
+database:
+  url: postgres://haze:haze@postgres:5432/haze?sslmode=disable
+  # Ключ шифрования at-rest для p256dh/auth_secret push-подписок (AES-256-GCM).
+  # Пустое значение = шифрование отключено (только для локальной разработки).
+  encryption_key: ""
+
+redis:
+  address: redis:6379
+  password: ""
+  db: 2
+
+queue:
+  stream: haze:notif
+
+fcm:
+  credentials_file: ""
+
+apns:
+  key_id: ""
+  team_id: ""
+  key_path: ""
+
+web_push:
+  vapid_public_key: ""
+  vapid_private_key: ""
+  vapid_subject: "mailto:admin@haze.local"
